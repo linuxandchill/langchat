@@ -9,9 +9,14 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "encoding": "^0.1.13",
     "eslint": "8.37.0",
     "eslint-config-next": "13.2.4",
+    "eventsource-parser": "^1.0.0",
+    "into-stream": "^7.0.0",
+    "langchain": "0.0.43",
     "next": "13.2.4",
+    "openai": "^3.2.1",
     "react": "18.2.0",
     "react-dom": "18.2.0"
   },
