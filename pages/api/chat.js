@@ -6,21 +6,21 @@ import { CallbackManager } from "langchain/callbacks";
 import {
     ChatPromptTemplate,
     HumanMessagePromptTemplate,
+    SystemMessagePromptTemplate,
 } from "langchain/prompts";
 import { HumanChatMessage, SystemChatMessage } from "langchain/schema";
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
 export const config = {
+    api: {
+      bodyParser: false,
+    },
     runtime: "edge",
 };
 
 export default async function handler(req, res) {
-    const { query, history } = req.body;
-
-    const prompt = ChatPromptTemplate.fromPromptMessages([
-        HumanMessagePromptTemplate.fromTemplate("{query}"),
-    ]);
+    const body = await req.json()
 
     try {
         if (!OPENAI_API_KEY) {
@@ -51,11 +51,23 @@ export default async function handler(req, res) {
             }),
         });
 
-        const chain = new LLMChain({ prompt, llm });
-        // We don't need to await the result of the chain.run() call because
-        // the LLM will invoke the callbackManager's handleLLMEnd() method
-        // Run the chain but don't await it
-        chain.run("hello").catch(console.error);
+        // const chain = new LLMChain({ prompt, llm });
+        // chain.call({ query: query }).catch(console.error);
+
+        // We can also construct an LLMChain from a ChatPromptTemplate and a chat model.
+        const chatPrompt = ChatPromptTemplate.fromPromptMessages([
+            SystemMessagePromptTemplate.fromTemplate(
+                "You are a helpful assistant that answers questions as best you can."
+            ),
+            HumanMessagePromptTemplate.fromTemplate("{input}"),
+        ]);
+        const chain = new LLMChain({
+            prompt: chatPrompt,
+            llm: llm,
+        });
+        chain
+            .call({input: body.query})
+            .catch(console.error);
 
         return new NextResponse(stream.readable, {
             headers: {
@@ -76,6 +88,4 @@ export default async function handler(req, res) {
             )
         );
     }
-
 }
-

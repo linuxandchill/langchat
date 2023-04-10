@@ -32,6 +32,7 @@ export default function Chat() {
 
         setFinished(false);
         setMessages((prev) => [...prev, { role: "human", message: input }]);
+        console.log(input)
 
         const res = await fetch("/api/chat", {
             method: "POST",
